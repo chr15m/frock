@@ -1,0 +1,25 @@
+(def! head-material-delimiter (str "$" "script = " "<<<FROCKSCRIPT" "DELIMITER"))
+(def! tail-material (str "FROCKSCRIPT" "DELIMITER;" "\n" "rep($" "script);" "\n" "?>"))
+(def! hash-bang (str "#!/usr/bin/env php\n"))
+
+(let [args (get ($ "_SERVER") "argv")
+      frock-bootstrap-file (or (get ($ "_SERVER") "FROCKBOOTSTRAP") "frock.php")
+      frock-src (slurp frock-bootstrap-file)
+      delimiter (if (> (! strpos frock-src head-material-delimiter) 0) head-material-delimiter "auto-resolve to mal file")
+      head-material (get (! explode delimiter frock-src) 0)
+      head-material (if (! in_array "-x" args) head-material (! str_replace hash-bang "" head-material))
+      script-names (vals (! array_filter args (fn* [a] (= (! pathinfo a 4) "mal"))))]
+  (if (= (count args) 1)
+    (do
+      (print "Usage:" (get args 0) "[-x]" "SCRIPT.mal")
+      (print " -x adds a unix hashbang to the script."))
+    (do
+      (print head-material)
+      (print head-material-delimiter)
+      (print "(do ")
+      (print (slurp "src/alias-hacks.mal"))
+      (! array_map (fn* [script-name]
+                        (print (slurp script-name))) script-names)
+      (print ")")
+      (print tail-material))))
+

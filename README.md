@@ -16,10 +16,10 @@ $ php hello.php
 hello world!
 ```
 
-Then do `php -S 0.0.0.0:8000` and browse to <http://localhost:8000/hello.php>
+Then `php -S 0.0.0.0:8000` & browse to <http://localhost:8000/hello.php>.
 
  * In case it's not obvious, this is a hack and probably shouldn't be used in production.
- * This is superficially Clojure and most things won't work.
+ * This is only superficially Clojure. Most things won't work.
  * PRs most welcome.
 
 Most of the code here comes from the Make-a-LISP project. The project and the PHP port were both built by [Kanaka](https://github.com/kanaka/).

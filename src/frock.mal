@@ -7,7 +7,7 @@
       head-material (get (! explode head-material-delimiter frock-src) 0)
       head-material (if (! in_array "-x" args) head-material (! str_replace hash-bang "" head-material))
       tail-material (get (! explode tail-material-delimiter frock-src) 1)
-      script-names (vals (! array_filter args (fn* [a] (= (! pathinfo a 4) "mal"))))]
+      script-names (vals (! array_filter args (fn* [a] (! in_array (! pathinfo a 4) ["mal" "clj"]))))]
   (if (= (count args) 1)
     (do
       (print "Usage:" (get args 0) "[-x]" "SCRIPT.mal")

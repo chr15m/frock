@@ -21,6 +21,8 @@
 
 (def! print println)
 
+; TODO: fill out these
+; fn
 ; def
 ; defn
 ; partial

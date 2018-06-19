@@ -1,12 +1,18 @@
 SOURCES_MAL = readline.php types.php reader.php printer.php interop.php env.php core.php stepA_mal.php
 SOURCES_PHP = $(foreach f,$(SOURCES_MAL),mal/php/$(f))
 SOURCES = alias-hacks.mal frock.mal
+DELIMITER="FROCKSCRIPTDELIMITER"
 
 frock.php: build/mal.php
-	cat src/* > build/bootstrap.mal
-	FROCKBOOTSTRAP=$< php $< build/bootstrap.mal > build/bootstrap.php
 	echo "#!/usr/bin/env php" > $@
-	FROCKBOOTSTRAP=build/bootstrap.php php build/bootstrap.php src/frock.mal >> $@
+	grep -B 10000 "webserver context" $< | sed '$$d' >> $@
+	echo "\$$script = <<<$(DELIMITER)" >> $@
+	echo "(do" >> $@;
+	cat src/* >> $@
+	echo ")" >> $@
+	echo "$(DELIMITER);" >> $@
+	echo 'rep($$script);' >> $@
+	echo "?>" >> $@
 	chmod +x $@
 
 build/mal.php: $(SOURCES_PHP) build

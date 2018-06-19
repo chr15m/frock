@@ -1033,10 +1033,8 @@ rep("(def! *gensym-counter* (atom 0))");
 rep("(def! gensym (fn* [] (symbol (str \"G__\" (swap! *gensym-counter* (fn* [x] (+ 1 x)))))))");
 rep("(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) (let* (condvar (gensym)) `(let* (~condvar ~(first xs)) (if ~condvar ~condvar (or ~@(rest xs)))))))))");
 
-// if we're called in a webserver context, 
-
 $script = <<<FROCKSCRIPTDELIMITER
-(do 
+(do
 ; aliases for common clojure names to mal builtins
 
 ; TODO: re-implement as actually useful macros:
@@ -1064,17 +1062,16 @@ $script = <<<FROCKSCRIPTDELIMITER
 ; defn
 ; partial
 
-
-(def! head-material-delimiter (str "$" "script = " "<<<FROCKSCRIPT" "DELIMITER"))
-(def! tail-material (str "FROCKSCRIPT" "DELIMITER;" "\n" "rep($" "script);" "\n" "?>"))
+; FROCKPREAMBLEDONE
 (def! hash-bang (str "#!/usr/bin/env php\n"))
+(def! head-material-delimiter (str ";" " FROCKPREAMBLEDONE"))
+(def! tail-material-delimiter (str "FROCKSCRIPT" "DELIMITER;"))
 
 (let [args (get ($ "_SERVER") "argv")
-      frock-bootstrap-file (or (get ($ "_SERVER") "FROCKBOOTSTRAP") "frock.php")
-      frock-src (slurp frock-bootstrap-file)
-      delimiter (if (> (! strpos frock-src head-material-delimiter) 0) head-material-delimiter "auto-resolve to mal file")
-      head-material (get (! explode delimiter frock-src) 0)
+      frock-src (slurp "frock.php")
+      head-material (get (! explode head-material-delimiter frock-src) 0)
       head-material (if (! in_array "-x" args) head-material (! str_replace hash-bang "" head-material))
+      tail-material (get (! explode tail-material-delimiter frock-src) 1)
       script-names (vals (! array_filter args (fn* [a] (= (! pathinfo a 4) "mal"))))]
   (if (= (count args) 1)
     (do
@@ -1083,13 +1080,10 @@ $script = <<<FROCKSCRIPTDELIMITER
     (do
       (print head-material)
       (print head-material-delimiter)
-      (print "(do ")
-      (print (slurp "src/alias-hacks.mal"))
       (! array_map (fn* [script-name]
                         (print (slurp script-name))) script-names)
       (print ")")
-      (print tail-material))))
-
+      (print (! rtrim (str tail-material-delimiter tail-material) "\n")))))
 
 )
 FROCKSCRIPTDELIMITER;

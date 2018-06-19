@@ -1058,6 +1058,8 @@ $script = <<<FROCKSCRIPTDELIMITER
 
 (def! print println)
 
+; TODO: fill out these
+; fn
 ; def
 ; defn
 ; partial
@@ -1075,7 +1077,7 @@ $script = <<<FROCKSCRIPTDELIMITER
       script-names (vals (! array_filter args (fn* [a] (! in_array (! pathinfo a 4) ["mal" "clj"]))))]
   (if (= (count args) 1)
     (do
-      (print "Usage:" (get args 0) "[-x]" "SCRIPT.mal")
+      (print "Usage:" (get args 0) "[-x]" "SCRIPT.clj")
       (print " -x adds a unix hashbang to the script."))
     (do
       (print head-material)

@@ -3,7 +3,7 @@
 (def! tail-material-delimiter (str "FROCKSCRIPT" "DELIMITER;"))
 
 (let [args (get ($ "_SERVER") "argv")
-      frock-src (slurp "frock.php")
+      frock-src (slurp (get ($ "_SERVER") "PHP_SELF"))
       head-material (get (! explode head-material-delimiter frock-src) 0)
       head-material (if (! in_array "-x" args) head-material (! str_replace hash-bang "" head-material))
       tail-material (get (! explode tail-material-delimiter frock-src) 1)

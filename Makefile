@@ -5,7 +5,7 @@ DELIMITER="FROCKSCRIPTDELIMITER"
 
 frock.php: build/mal.php
 	echo "#!/usr/bin/env php" > $@
-	grep -B 10000 "webserver context" $< | sed '$$d' >> $@
+	grep -B 10000 "// run mal file" $< | sed '$$d' >> $@
 	echo "\$$script = <<<$(DELIMITER)" >> $@
 	echo "(do" >> $@;
 	cat src/* >> $@
@@ -19,7 +19,7 @@ build/mal.php: $(SOURCES_PHP) build
 	cat $(SOURCES_PHP) | grep -v "^require_once" > $@
 
 $(SOURCES_PHP):
-	git clone https://github.com/kanaka/mal.git
+	git clone https://github.com/chr15m/mal.git
 
 build:
 	mkdir -p build

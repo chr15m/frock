@@ -2,12 +2,12 @@
 (def! head-material-delimiter (str ";" " FROCKPREAMBLEDONE"))
 (def! tail-material-delimiter (str "FROCKSCRIPT" "DELIMITER;"))
 
-(let [args (get ($ "_SERVER") "argv")
-      frock-src (slurp (get ($ "_SERVER") "PHP_SELF"))
-      head-material (get (! explode head-material-delimiter frock-src) 0)
-      head-material (if (! in_array "-x" args) head-material (! str_replace hash-bang "" head-material))
-      tail-material (get (! explode tail-material-delimiter frock-src) 1)
-      script-names (vals (! array_filter args (fn* [a] (! in_array (! pathinfo a 4) ["mal" "clj"]))))]
+(let [args (get php/_SERVER "argv")
+      frock-src (slurp (get php/_SERVER "PHP_SELF"))
+      head-material (get (php/explode head-material-delimiter frock-src) 0)
+      head-material (if (php/in_array "-x" args) head-material (php/str_replace hash-bang "" head-material))
+      tail-material (get (php/explode tail-material-delimiter frock-src) 1)
+      script-names (vals (php/array_filter args (fn* [a] (php/in_array (php/pathinfo a 4) ["mal" "clj"]))))]
   (if (= (count args) 1)
     (do
       (print "Usage:" (get args 0) "[-x]" "SCRIPT.clj")
@@ -15,8 +15,8 @@
     (do
       (print head-material)
       (print head-material-delimiter)
-      (! array_map (fn* [script-name]
+      (php/array_map (fn* [script-name]
                         (print (slurp script-name))) script-names)
       (print ")")
-      (print (! rtrim (str tail-material-delimiter tail-material) "\n")))))
+      (print (php/rtrim (str tail-material-delimiter tail-material) "\n")))))
 

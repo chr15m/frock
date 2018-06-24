@@ -44,7 +44,7 @@ if (php_sapi_name() == "cli") {
 
 
 // Errors/Exceptions
-class _Error extends Exception {
+class Error extends Exception {
     public $obj = null;
     public function __construct($obj) {
         parent::__construct("Mal Error", 0, null);
@@ -92,7 +92,6 @@ function _false_Q($obj) { return $obj === false; }
 function _string_Q($obj) {
     return is_string($obj) && strpos($obj, chr(0x7f)) !== 0;
 }
-function _number_Q($obj) { return is_int($obj); }
 
 
 // Symbols
@@ -157,7 +156,6 @@ function _function($func, $type='platform',
     return new FunctionClass($func, $type, $ast, $env, $params, $ismacro);
 }
 function _function_Q($obj) { return $obj instanceof FunctionClass; }
-function _fn_Q($obj) { return $obj instanceof Closure; }
 
 
 // Parent class of list, vector, hash-map
@@ -287,7 +285,7 @@ function _real_token($s) {
 }
 
 function tokenize($str) {
-    $pat = "/[\s,]*(~@|[\[\]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"|;.*|[^\s\[\]{}('\"`,;)]*)/";
+    $pat = "/[\s,]*(php\/|~@|[\[\]{}()'`~^@]|\"(?:\\\\.|[^\\\\\"])*\"|;.*|[^\s\[\]{}('\"`,;)]*)/";
     preg_match_all($pat, $str, $matches);
     return array_values(array_filter($matches[1], '_real_token'));
 }
@@ -298,10 +296,9 @@ function read_atom($reader) {
         return intval($token, 10);
     } elseif ($token[0] === "\"") {
         $str = substr($token, 1, -1);
-        $str = str_replace('\\\\', chr(0x7f), $str);
-        $str = str_replace('\\"', '"', $str);
-        $str = str_replace('\\n', "\n", $str);
-        $str = str_replace(chr(0x7f), "\\", $str);
+        $str = preg_replace('/\\\\"/', '"', $str);
+        $str = preg_replace('/\\\\n/', "\n", $str);
+        $str = preg_replace('/\\\\\\\\/', "\\", $str);
         return $str;
     } elseif ($token[0] === ":") {
         return _keyword(substr($token,1));
@@ -360,6 +357,10 @@ function read_form($reader) {
 
     case '@':  $reader->next();
                return _list(_symbol('deref'),
+                               read_form($reader));
+
+    case 'php/': $reader->next();
+               return _list(_symbol('to-native'),
                                read_form($reader));
 
     case ')': throw new Exception("unexpected ')'");
@@ -486,6 +487,20 @@ function _to_mal($obj) {
     }
 }
 
+function _to_native($name, $env) {
+  if (is_callable($name)) {
+    return _function(function() use ($name) {
+      $args = array_map("_to_php", func_get_args());
+      $res = call_user_func_array($name, $args);
+      return _to_mal($res);
+    });
+  } else if (in_array($name, ["_SERVER", "_GET", "_POST", "_FILES", "_REQUEST", "_SESSION", "_ENV", "_COOKIE"])) {
+      $val = $GLOBALS[$name];
+  } else {
+      $val = ${$name};
+  }
+  return _to_mal($val);
+}
 ?>
 <?php
 
@@ -546,7 +561,7 @@ class Env {
 
 
 // Error/Exception functions
-function mal_throw($obj) { throw new _Error($obj); }
+function mal_throw($obj) { throw new Error($obj); }
 
 
 // String functions
@@ -749,15 +764,12 @@ $core_ns = array(
     'nil?'=>   function ($a) { return _nil_Q($a); },
     'true?'=>  function ($a) { return _true_Q($a); },
     'false?'=> function ($a) { return _false_Q($a); },
-    'number?'=> function ($a) { return _number_Q($a); },
     'symbol'=> function () { return call_user_func_array('_symbol', func_get_args()); },
     'symbol?'=> function ($a) { return _symbol_Q($a); },
     'keyword'=> function () { return call_user_func_array('_keyword', func_get_args()); },
     'keyword?'=> function ($a) { return _keyword_Q($a); },
 
     'string?'=> function ($a) { return _string_Q($a); },
-    'fn?'=>    function($a) { return _fn_Q($a) || (_function_Q($a) && !$a->ismacro ); },
-    'macro?'=> function($a) { return _function_Q($a) && $a->ismacro; },
     'pr-str'=> function () { return call_user_func_array('pr_str', func_get_args()); },
     'str'=>    function () { return call_user_func_array('str', func_get_args()); },
     'prn'=>    function () { return call_user_func_array('prn', func_get_args()); },
@@ -880,7 +892,6 @@ function eval_ast($ast, $env) {
 }
 
 function MAL_EVAL($ast, $env) {
-    $_SUPERGLOBALS = ["_SERVER", "_GET", "_POST", "_FILES", "_REQUEST", "_SESSION", "_ENV", "_COOKIE"];
     while (true) {
 
     #echo "MAL_EVAL: " . _pr_str($ast) . "\n";
@@ -932,7 +943,7 @@ function MAL_EVAL($ast, $env) {
         if ($a2[0]->value === "catch*") {
             try {
                 return MAL_EVAL($a1, $env);
-            } catch (_Error $e) {
+            } catch (Error $e) {
                 $catch_env = new Env($env, array($a2[1]),
                                             array($e->obj));
                 return MAL_EVAL($a2[2], $catch_env);
@@ -960,27 +971,8 @@ function MAL_EVAL($ast, $env) {
     case "fn*":
         return _function('MAL_EVAL', 'native',
                          $ast[2], $env, $ast[1]);
-    case "$":
-        $var = MAL_EVAL($ast[1], $env);
-        if (_symbol_Q($var)) {
-          $varname = $var->value;
-        } elseif (gettype($var) === "string") {
-          $varname = $var;
-        } else {
-          throw new Exception("$ arg unknown type: " . gettype($var));
-        }
-        if (in_array($varname, $_SUPERGLOBALS)) {
-            $val = $GLOBALS[$varname];
-        } else {
-            $val = ${$varname};
-        }
-        return _to_mal($val);
-    case "!":
-        $fn = $ast[1]->value;
-        $el = eval_ast($ast->slice(2), $env);
-        $args = _to_php($el);
-        $res = call_user_func_array($fn, $args);
-        return _to_mal($res);
+    case "to-native":
+        return _to_native($ast[1]->value, $env);
     default:
         $el = eval_ast($ast, $env);
         $f = $el[0];
@@ -1069,12 +1061,12 @@ $script = <<<FROCKSCRIPTDELIMITER
 (def! head-material-delimiter (str ";" " FROCKPREAMBLEDONE"))
 (def! tail-material-delimiter (str "FROCKSCRIPT" "DELIMITER;"))
 
-(let [args (get ($ "_SERVER") "argv")
-      frock-src (slurp (get ($ "_SERVER") "PHP_SELF"))
-      head-material (get (! explode head-material-delimiter frock-src) 0)
-      head-material (if (! in_array "-x" args) head-material (! str_replace hash-bang "" head-material))
-      tail-material (get (! explode tail-material-delimiter frock-src) 1)
-      script-names (vals (! array_filter args (fn* [a] (! in_array (! pathinfo a 4) ["mal" "clj"]))))]
+(let [args (get php/_SERVER "argv")
+      frock-src (slurp (get php/_SERVER "PHP_SELF"))
+      head-material (get (php/explode head-material-delimiter frock-src) 0)
+      head-material (if (php/in_array "-x" args) head-material (php/str_replace hash-bang "" head-material))
+      tail-material (get (php/explode tail-material-delimiter frock-src) 1)
+      script-names (vals (php/array_filter args (fn* [a] (php/in_array (php/pathinfo a 4) ["mal" "clj"]))))]
   (if (= (count args) 1)
     (do
       (print "Usage:" (get args 0) "[-x]" "SCRIPT.clj")
@@ -1082,10 +1074,10 @@ $script = <<<FROCKSCRIPTDELIMITER
     (do
       (print head-material)
       (print head-material-delimiter)
-      (! array_map (fn* [script-name]
+      (php/array_map (fn* [script-name]
                         (print (slurp script-name))) script-names)
       (print ")")
-      (print (! rtrim (str tail-material-delimiter tail-material) "\n")))))
+      (print (php/rtrim (str tail-material-delimiter tail-material) "\n")))))
 
 )
 FROCKSCRIPTDELIMITER;

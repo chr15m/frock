@@ -496,6 +496,8 @@ function _to_native($name, $env) {
     });
   } else if (in_array($name, ["_SERVER", "_GET", "_POST", "_FILES", "_REQUEST", "_SESSION", "_ENV", "_COOKIE"])) {
       $val = $GLOBALS[$name];
+  } else if (defined($name)) {
+      $val = constant($name);
   } else {
       $val = ${$name};
   }

@@ -1,3 +1,5 @@
 .*.swp
 mal
 build
+examples/*.php
+examples/file-append.txt

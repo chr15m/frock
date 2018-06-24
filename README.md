@@ -18,6 +18,10 @@ hello world!
 
 Then `php -S 0.0.0.0:8000` & browse to <http://localhost:8000/hello.php>.
 
+### Examples
+
+See the [examples](./examples) folder for example code using this.
+
 ### About
 
  * In case it's not obvious, this is a hack and probably shouldn't be used in production.

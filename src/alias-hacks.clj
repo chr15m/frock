@@ -26,5 +26,7 @@
 ; def
 ; defn
 ; partial
+; when
+; binary operators
 
 ; FROCKPREAMBLEDONE

@@ -44,7 +44,7 @@ if (php_sapi_name() == "cli") {
 
 
 // Errors/Exceptions
-class Error extends Exception {
+class _Error extends Exception {
     public $obj = null;
     public function __construct($obj) {
         parent::__construct("Mal Error", 0, null);
@@ -92,6 +92,7 @@ function _false_Q($obj) { return $obj === false; }
 function _string_Q($obj) {
     return is_string($obj) && strpos($obj, chr(0x7f)) !== 0;
 }
+function _number_Q($obj) { return is_int($obj); }
 
 
 // Symbols
@@ -156,6 +157,7 @@ function _function($func, $type='platform',
     return new FunctionClass($func, $type, $ast, $env, $params, $ismacro);
 }
 function _function_Q($obj) { return $obj instanceof FunctionClass; }
+function _fn_Q($obj) { return $obj instanceof Closure; }
 
 
 // Parent class of list, vector, hash-map
@@ -296,9 +298,10 @@ function read_atom($reader) {
         return intval($token, 10);
     } elseif ($token[0] === "\"") {
         $str = substr($token, 1, -1);
-        $str = preg_replace('/\\\\"/', '"', $str);
-        $str = preg_replace('/\\\\n/', "\n", $str);
-        $str = preg_replace('/\\\\\\\\/', "\\", $str);
+        $str = str_replace('\\\\', chr(0x7f), $str);
+        $str = str_replace('\\"', '"', $str);
+        $str = str_replace('\\n', "\n", $str);
+        $str = str_replace(chr(0x7f), "\\", $str);
         return $str;
     } elseif ($token[0] === ":") {
         return _keyword(substr($token,1));
@@ -563,7 +566,7 @@ class Env {
 
 
 // Error/Exception functions
-function mal_throw($obj) { throw new Error($obj); }
+function mal_throw($obj) { throw new _Error($obj); }
 
 
 // String functions
@@ -766,12 +769,15 @@ $core_ns = array(
     'nil?'=>   function ($a) { return _nil_Q($a); },
     'true?'=>  function ($a) { return _true_Q($a); },
     'false?'=> function ($a) { return _false_Q($a); },
+    'number?'=> function ($a) { return _number_Q($a); },
     'symbol'=> function () { return call_user_func_array('_symbol', func_get_args()); },
     'symbol?'=> function ($a) { return _symbol_Q($a); },
     'keyword'=> function () { return call_user_func_array('_keyword', func_get_args()); },
     'keyword?'=> function ($a) { return _keyword_Q($a); },
 
     'string?'=> function ($a) { return _string_Q($a); },
+    'fn?'=>    function($a) { return _fn_Q($a) || (_function_Q($a) && !$a->ismacro ); },
+    'macro?'=> function($a) { return _function_Q($a) && $a->ismacro; },
     'pr-str'=> function () { return call_user_func_array('pr_str', func_get_args()); },
     'str'=>    function () { return call_user_func_array('str', func_get_args()); },
     'prn'=>    function () { return call_user_func_array('prn', func_get_args()); },
@@ -945,7 +951,7 @@ function MAL_EVAL($ast, $env) {
         if ($a2[0]->value === "catch*") {
             try {
                 return MAL_EVAL($a1, $env);
-            } catch (Error $e) {
+            } catch (_Error $e) {
                 $catch_env = new Env($env, array($a2[1]),
                                             array($e->obj));
                 return MAL_EVAL($a2[2], $catch_env);
@@ -1034,6 +1040,12 @@ $script = <<<FROCKSCRIPTDELIMITER
 ; TODO: re-implement as actually useful macros:
 ; destructuring, arg checking, etc.
 
+;*** pure aliases ***;
+
+(def! print println)
+
+;*** macros ***;
+
 (defmacro! let
   (fn* (& xs)
        (if (> (count xs) 0)
@@ -1050,13 +1062,40 @@ $script = <<<FROCKSCRIPTDELIMITER
                  (throw "odd number of forms to cond"))
                (cons 'cond (rest (rest xs)))))))
 
-(def! print println)
+(defmacro! when
+  (fn* (& xs)
+       (if (> (count xs)0)
+         (list 'if (first xs)
+               (cons 'do (rest xs))))))
+
+(defmacro! def
+  (fn* (& xs)
+       (if (> (count xs)0)
+         (list 'def! (first xs)
+               (cons 'do (rest xs))))))
+
+(defmacro! fn
+  (fn* (& xs)
+       (if (> (count xs) 0)
+         (list 'fn*
+               (first xs)
+               (cons 'do (rest xs))))))
+
+(defmacro! defn
+  (fn* (n & xs)
+       (if (> (count xs) 0)
+         (list 'def! n
+               (cons 'fn xs)))))
+
+;*** functions ***/
+
+(def! partial
+  (fn* [pfn & args]
+       (fn* [& args-inner]
+            (apply pfn (concat args args-inner)))))
 
 ; TODO: fill out these
-; fn
-; def
-; defn
-; partial
+; binary operators
 
 ; FROCKPREAMBLEDONE
 (def! hash-bang (str "#!/usr/bin/env php\n"))

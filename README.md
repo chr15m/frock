@@ -1,5 +1,9 @@
 Frock is Clojure-flavoured PHP.
 
+```clojure
+(print (php/json_encode {:hello "world"))
+```
+
 ### Get
 
 ```sh

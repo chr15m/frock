@@ -31,6 +31,12 @@
          (list 'if (first xs)
                (cons 'do (rest xs))))))
 
+(defmacro! def
+  (fn* (& xs)
+       (if (> (count xs)0)
+         (list 'def! (first xs)
+               (cons 'do (rest xs))))))
+
 (defmacro! fn
   (fn* (& xs)
        (if (> (count xs) 0)
@@ -45,7 +51,6 @@
                (cons 'fn xs)))))
 
 ; TODO: fill out these
-; def
 ; partial
 ; binary operators
 

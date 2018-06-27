@@ -34,9 +34,14 @@
                (first xs)
                (cons 'do (rest xs))))))
 
+(defmacro! defn
+  (fn* (n & xs)
+       (if (> (count xs) 0)
+         (list 'def! n
+               (cons 'fn xs)))))
+
 ; TODO: fill out these
 ; def
-; defn
 ; partial
 ; binary operators
 

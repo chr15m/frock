@@ -27,12 +27,17 @@
          (list 'if (first xs)
                (cons 'do (rest xs))))))
 
+(defmacro! fn
+  (fn* (& xs)
+       (if (> (count xs) 0)
+         (list 'fn*
+               (first xs)
+               (cons 'do (rest xs))))))
+
 ; TODO: fill out these
-; fn
 ; def
 ; defn
 ; partial
-; when
 ; binary operators
 
 ; FROCKPREAMBLEDONE

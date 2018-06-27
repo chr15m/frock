@@ -3,7 +3,7 @@ SOURCES_PHP = $(foreach f,$(SOURCES_MAL),mal/php/$(f))
 SOURCES = alias-hacks.mal frock.mal
 DELIMITER="FROCKSCRIPTDELIMITER"
 
-frock.php: build/mal.php
+frock.php: build/mal.php src/*
 	echo "#!/usr/bin/env php" > $@
 	grep -B 10000 "// run mal file" $< | sed '$$d' >> $@
 	echo "\$$script = <<<$(DELIMITER)" >> $@

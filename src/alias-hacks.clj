@@ -3,6 +3,12 @@
 ; TODO: re-implement as actually useful macros:
 ; destructuring, arg checking, etc.
 
+;*** pure aliases ***;
+
+(def! print println)
+
+;*** macros ***;
+
 (defmacro! let
   (fn* (& xs)
        (if (> (count xs) 0)
@@ -18,8 +24,6 @@
                  (nth xs 1)
                  (throw "odd number of forms to cond"))
                (cons 'cond (rest (rest xs)))))))
-
-(def! print println)
 
 (defmacro! when
   (fn* (& xs)

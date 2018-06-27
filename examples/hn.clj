@@ -19,7 +19,7 @@
   (let [articles (fetch-top-articles)
         articles (php/array_map
                    (fn [article]
-                     (let [article (php/_to_mal article)]
+                     (let [article (php->clj article)]
                        (str (get article "title") "\n"
                             (get article "url") "\n")))
                    articles)]

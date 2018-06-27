@@ -21,6 +21,12 @@
 
 (def! print println)
 
+(defmacro! when
+  (fn* (& xs)
+       (if (> (count xs)0)
+         (list 'if (first xs)
+               (cons 'do (rest xs))))))
+
 ; TODO: fill out these
 ; fn
 ; def

@@ -1,16 +1,10 @@
-Example scripts and Makefile for using `frock.php` to build PHP scripts.
+Example scripts and Makefile for using `frock.php` to build PHP scripts from Clojure-flavoured source.
 
-### Build
+Do `make` to compile once.
 
-	make
+Do `make watch` to watch-and-rebuild this folder on changes.
 
-### Try
+Do `make serve` to start a server, and then then visit <http://localhost:8000>.
 
-	php -S 0.0.0.0:8000
-
-Then browse to <http://localhost:8000/>
-
-### Develop
-
-	make watch
+You can also run individual builds with PHP on the command line: `php json.php`.
 

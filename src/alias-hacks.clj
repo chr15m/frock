@@ -50,8 +50,14 @@
          (list 'def! n
                (cons 'fn xs)))))
 
+;*** functions ***/
+
+(def! partial
+  (fn* [pfn & args]
+       (fn* [& args-inner]
+            (apply pfn (concat args args-inner)))))
+
 ; TODO: fill out these
-; partial
 ; binary operators
 
 ; FROCKPREAMBLEDONE

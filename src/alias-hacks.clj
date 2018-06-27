@@ -57,6 +57,14 @@
        (fn* [& args-inner]
             (apply pfn (concat args args-inner)))))
 
+(def! clj->php
+  (fn* [structure]
+       (php/_to_php structure)))
+
+(def! php->clj
+  (fn* [structure]
+       (php/_to_mal structure)))
+
 ; TODO: fill out these
 ; binary operators
 

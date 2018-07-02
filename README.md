@@ -26,6 +26,10 @@ Then `php -S 0.0.0.0:8000` & browse to <http://localhost:8000/hello.php>.
 
 See the [examples folder](./examples).
 
+### Security
+
+Please see [this note about security](https://github.com/chr15m/frock/issues/4).
+
 ### About
 
  * In case it's not obvious, this is a hack and probably shouldn't be used in production.
@@ -35,4 +39,18 @@ See the [examples folder](./examples).
 Most of the code here comes from the [Make-a-LISP project](https://github.com/kanaka/mal). The project and the PHP port were both built by [Kanaka](https://github.com/kanaka/).
 
 The only original thing this repository brings is a system for building mal-php code into a distributable artifact.
+
+### Why?
+
+<https://chr15m.github.io/frock-clojure-flavoured-php.html>
+
+Frock might be interesting to you if:
+
+ * You want to build a single artifact that almost anybody can upload to commodity hosting.
+ * You need some minimal server side code to support your front-end web application.
+ * You find PHP's syntax onerous but enjoy wrangling LISP braces.
+
+### Caveats & limitations
+
+Too many to list here. :joy:
 

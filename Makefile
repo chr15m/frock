@@ -24,6 +24,9 @@ $(SOURCES_PHP):
 build:
 	mkdir -p build
 
+test:
+	./mal/runtest.py tests/test-frock.clj ./mal/php/mal
+
 .PHONY: clean
 
 clean:

@@ -27,9 +27,9 @@
 
 (defmacro! when
   (fn* (& xs)
-       (if (> (count xs)0)
-         (list 'if (first xs)
-               (cons 'do (rest xs))))))
+       (if (> (count xs) 0)
+         `(if ~(first xs)
+            (do ~@(rest xs))))))
 
 (defmacro! def
   (fn* (& xs)

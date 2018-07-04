@@ -9,7 +9,7 @@ watch:
 serve:
 	php -S 0.0.0.0:8000
 
-%.php: %.clj
+%.php: %.clj ../frock.php
 	../frock.php $< > $@
 
 .PHONY: clean

@@ -27,7 +27,10 @@ build:
 test:
 	./mal/runtest.py tests/test-frock.clj ./mal/php/mal
 
-.PHONY: clean
+.PHONY: clean watch
+
+watch:
+	while [ 1 ]; do make -q || make; sleep 1; done
 
 clean:
 	rm -rf build/ frock.php

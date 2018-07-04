@@ -11,16 +11,20 @@
 
 ;; test the 'when' macro
 
-(when 1 (print "yes"))
+(when 1 (println "yes"))
 ; yes
 ;=>nil
 
-(when 1 (print "yes") 2)
+(when 1 (println "yes") 2)
 ; yes
 ;=>2
 
-(when false (print "yes") 2)
+(when false (println "yes") 2)
 ;=>nil
+
+;; test print
+(print "hi")
+; hi
 
 ;; test the 'def' macro
 ;; test the 'fn' macro

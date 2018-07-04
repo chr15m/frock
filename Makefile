@@ -7,11 +7,9 @@ frock.php: build/mal.php src/*
 	echo "#!/usr/bin/env php" > $@
 	grep -B 10000 "// run mal file" $< | sed '$$d' >> $@
 	echo "\$$script = <<<$(DELIMITER)" >> $@
-	echo "(do" >> $@;
 	cat src/* >> $@
-	echo ")" >> $@
 	echo "$(DELIMITER);" >> $@
-	echo 'rep($$script);' >> $@
+	echo 'rep("(do " . $$script . ")");' >> $@
 	echo "?>" >> $@
 	chmod +x $@
 

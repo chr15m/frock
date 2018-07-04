@@ -13,10 +13,9 @@
       (print "Usage:" (get args 0) "[-x]" "SCRIPT.clj")
       (print " -x adds a unix hashbang to the script."))
     (do
-      (print head-material)
-      (print head-material-delimiter)
+      (print head-material "\n")
+      (print head-material-delimiter "\n")
       (php/array_map (fn* [script-name]
                         (print (slurp script-name))) script-names)
-      (print ")")
-      (print (php/rtrim (str tail-material-delimiter tail-material) "\n")))))
+      (print (str tail-material-delimiter tail-material)))))
 

@@ -1034,7 +1034,6 @@ rep("(def! gensym (fn* [] (symbol (str \"G__\" (swap! *gensym-counter* (fn* [x] 
 rep("(defmacro! or (fn* (& xs) (if (empty? xs) nil (if (= 1 (count xs)) (first xs) (let* (condvar (gensym)) `(let* (~condvar ~(first xs)) (if ~condvar ~condvar (or ~@(rest xs)))))))))");
 
 $script = <<<FROCKSCRIPTDELIMITER
-(do
 ; aliases for common clojure names to mal builtins
 
 ; TODO: re-implement as actually useful macros:
@@ -1042,7 +1041,7 @@ $script = <<<FROCKSCRIPTDELIMITER
 
 ;*** pure aliases ***;
 
-(def! print println)
+(def! slurp php/file_get_contents)
 
 ;*** macros ***;
 
@@ -1089,6 +1088,11 @@ $script = <<<FROCKSCRIPTDELIMITER
 
 ;*** functions ***/
 
+(def! print
+  (fn* [& args]
+       (let [len (php/printf (php/str_replace "%" "%%" (apply str args)))]
+         nil)))
+
 (def! partial
   (fn* [pfn & args]
        (fn* [& args-inner]
@@ -1112,23 +1116,25 @@ $script = <<<FROCKSCRIPTDELIMITER
 
 (let [args (get php/_SERVER "argv")
       frock-src (slurp (get php/_SERVER "PHP_SELF"))
+      preamble-file (if (php/in_array "-p" args) (get args (+ (php/array_search "-p" args) 1)))
       head-material (get (php/explode head-material-delimiter frock-src) 0)
       head-material (if (php/in_array "-x" args) head-material (php/str_replace hash-bang "" head-material))
       tail-material (get (php/explode tail-material-delimiter frock-src) 1)
       script-names (vals (php/array_filter args (fn* [a] (php/in_array (php/pathinfo a 4) ["mal" "clj"]))))]
   (if (= (count args) 1)
     (do
-      (print "Usage:" (get args 0) "[-x]" "SCRIPT.clj")
-      (print " -x adds a unix hashbang to the script."))
+      (print "Usage:" (get args 0) "[-x]" "SCRIPT.clj" "[-p PREAMBLE.php]")
+      (print " -x adds a unix hashbang to the script.")
+      (print " -p prepends the contents of the named file to the build."))
     (do
-      (print head-material)
-      (print head-material-delimiter)
+      (when preamble-file
+        (print (slurp preamble-file)))
+      (print head-material "\n")
+      (print head-material-delimiter "\n")
       (php/array_map (fn* [script-name]
                         (print (slurp script-name))) script-names)
-      (print ")")
-      (print (php/rtrim (str tail-material-delimiter tail-material) "\n")))))
+      (print (str tail-material-delimiter tail-material)))))
 
-)
 FROCKSCRIPTDELIMITER;
-rep($script);
+rep("(do " . $script . ")");
 ?>

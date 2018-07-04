@@ -5,7 +5,7 @@
 
 ;*** pure aliases ***;
 
-(def! print println)
+(def! slurp php/file_get_contents)
 
 ;*** macros ***;
 
@@ -51,6 +51,11 @@
                (cons 'fn xs)))))
 
 ;*** functions ***/
+
+(def! print
+  (fn* [& args]
+       (let [len (php/printf (php/str_replace "%" "%%" (apply str args)))]
+         nil)))
 
 (def! partial
   (fn* [pfn & args]

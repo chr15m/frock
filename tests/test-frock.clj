@@ -3,7 +3,8 @@
 (load-file "src/alias-hacks.clj")
 
 ;; test the print alias
-
+(print "hi")
+; hi
 
 ;; test the 'let' macro
 
@@ -22,10 +23,6 @@
 (when false (println "yes") 2)
 ;=>nil
 
-;; test print
-(print "hi")
-; hi
-
 ;; test the 'def' macro
 ;; test the 'fn' macro
 ;; test the 'defn' macro
@@ -39,3 +36,4 @@
 ; )
 ;=>true
 
+;; test the slurp fn

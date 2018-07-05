@@ -1123,9 +1123,9 @@ $script = <<<FROCKSCRIPTDELIMITER
       script-names (vals (php/array_filter args (fn* [a] (php/in_array (php/pathinfo a 4) ["mal" "clj"]))))]
   (if (= (count args) 1)
     (do
-      (print "Usage:" (get args 0) "[-x]" "SCRIPT.clj" "[-p PREAMBLE.php]")
-      (print " -x adds a unix hashbang to the script.")
-      (print " -p prepends the contents of the named file to the build."))
+      (println "Usage:" (get args 0) "[-x]" "SCRIPT.clj" "[-p PREAMBLE.php]")
+      (println " -x adds a unix hashbang to the script.")
+      (println " -p prepends the contents of the named file to the build."))
     (do
       (when preamble-file
         (print (slurp preamble-file)))

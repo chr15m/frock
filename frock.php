@@ -1044,6 +1044,7 @@ $script = <<<FROCKSCRIPTDELIMITER
 (def! slurp php/file_get_contents)
 
 ;*** macros ***;
+; TODO: use backquote as per `when` below
 
 (defmacro! let
   (fn* (& xs)
@@ -1090,8 +1091,10 @@ $script = <<<FROCKSCRIPTDELIMITER
 
 (def! print
   (fn* [& args]
-       (let [len (php/printf (php/str_replace "%" "%%" (apply str args)))]
-         nil)))
+       (php/implode " "
+                    (php/array_map
+                      (fn [obj] (str "b" (php/_pr_str obj false)))
+                      args))))
 
 (def! partial
   (fn* [pfn & args]

@@ -6,6 +6,7 @@
 ;*** pure aliases ***;
 
 ;*** macros ***;
+; TODO: use backquote as per `when` below
 
 (defmacro! let
   (fn* (& xs)
@@ -52,7 +53,8 @@
 
 (def! print
   (fn* [& args]
-       (let [len (php/printf (php/str_replace "%" "%%" (apply str args)))]
+       (do
+         (php/printf (php/str_replace "%" "%%" (apply str args)))
          nil)))
 
 (def! partial

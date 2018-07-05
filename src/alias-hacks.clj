@@ -5,8 +5,6 @@
 
 ;*** pure aliases ***;
 
-(def! slurp php/file_get_contents)
-
 ;*** macros ***;
 
 (defmacro! let

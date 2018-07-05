@@ -1,8 +1,8 @@
 Frock is Clojure-flavoured PHP.
 
-```clojure
-(print (php/json_encode {:hello "world"}))
-```
+<p align="center">
+    <img src="https://cdn.rawgit.com/chr15m/frock/master/screencast.svg"/>
+</p>
 
 ### Get
 
@@ -14,7 +14,7 @@ chmod 700 frock.php
 ### Use
 
 ```sh
-$ echo '(print "hello world!")' > hello.clj
+$ echo '(println "hello world!")' > hello.clj
 $ ./frock.php hello.clj > hello.php
 $ php hello.php
 hello world!

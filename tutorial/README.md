@@ -19,7 +19,7 @@ Start by creating a basic front-end Figwheel project:
 	lein new figwheel frock-test
 	cd frock-test
 
-Note: if you have some other prefered front-end dev lein template feel free to use that.
+Note: *if you have some other prefered front-end dev lein template feel free to use that*.
 
 Run the figwheel server in a separate terminal window:
 
@@ -34,7 +34,7 @@ Do this in another terminal window:
 
 Now open a browser tab and visit http://127.0.0.1:8000/. You should see the **Figwheel template** default output.
 
-Note: since we'll be using our PHP server on port `8000` you might want to change the figwheel `:open-urls` setting to point at port `8000` instead of `3449`.
+Note: *since we'll be using our PHP server on port `8000` you might want to change the figwheel `:open-urls` setting to point at port `8000` instead of `3449`*.
 
 Great, we now have the development servers running.
 
@@ -94,6 +94,8 @@ The `-j2` flag tells `make` to launch two threads, one for the `watch` rule and 
 If you change the text in `server/hello-world.clj` and refresh http://127.0.0.1:8000/hello-world.php after one second you should see the change in the browser.
 
 You should now have a terminal window running the figwheel server and a separate terminal window running the Frock build & PHP server.
+
+Note: *You could add a `lein` alias and use [https://github.com/hyPiRion/lein-shell](lein-shell) to run the `make -j2 watch serve` command if you don't want to remember the full command; or create a shell script*.
 
 ### Write our first Frock back-end
 

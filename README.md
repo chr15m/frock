@@ -24,9 +24,9 @@ hello world!
 
 Then `php -S 0.0.0.0:8000` & browse to <http://localhost:8000/hello.php>.
 
-### Examples
+### Examples & tutorial
 
-See the [examples folder](./examples).
+See the [examples folder](./examples) and the [tutorial folder](./tutorial).
 
 ### Security
 

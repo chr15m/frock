@@ -1,7 +1,7 @@
 Frock is Clojure-flavoured PHP.
 
 <p align="center">
-    <img src="https://cdn.rawgit.com/chr15m/frock/master/screencast.svg"/>
+    <img src="https://chr15m.github.io/frock/screencast.svg"/>
 </p>
 
 > "If you want to produce free-as-in-whatever code that runs on virtually every server in the world with zero friction or configuration hassles, PHP is damn near your only option. If that doesn't scare you, then check your pulse, because you might be dead." [Jeff Atwood, 2012](https://blog.codinghorror.com/the-php-singularity/)
